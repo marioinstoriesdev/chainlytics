@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chainlytics x Vanish</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #9945ff;
+    --accent-dim: #6a2fb5;
+    --green: #14f195;
+    --yellow: #f5c518;
+    --red: #ff4444;
+    --blue: #00c2ff;
+    --text: #e2e2f0;
+    --muted: #6b6b8a;
+    --radius: 8px;
+    --mono: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.3px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--accent); }
+    50% { opacity: 0.5; box-shadow: 0 0 4px var(--accent); }
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .status-pill {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .wallet-addr {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Layout */
+  main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+  }
+  .card-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Balance bar */
+  .balance-bar {
+    display: flex;
+    gap: 16px;
+    padding: 14px 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .balance-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    white-space: nowrap;
+  }
+  .balance-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .balance-value { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--green); }
+
+  /* Token score rows */
+  .token-list { padding: 0; }
+  .token-row {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    transition: background 0.15s;
+  }
+  .token-row:last-child { border-bottom: none; }
+  .token-row:hover { background: rgba(255,255,255,0.02); }
+  .token-addr {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+  }
+  .token-addr-full {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+    word-break: break-all;
+  }
+  .score-block { text-align: right; }
+  .score-value {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .score-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .conf-bar-wrap { width: 80px; }
+  .conf-bar-bg {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .conf-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+  .conf-label { font-size: 10px; color: var(--muted); }
+
+  /* Action badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .badge-buy-scaled { background: rgba(20,241,149,0.15); color: var(--green); border: 1px solid rgba(20,241,149,0.3); }
+  .badge-buy { background: rgba(20,241,149,0.08); color: #7be8b0; border: 1px solid rgba(20,241,149,0.2); }
+  .badge-wait { background: rgba(245,197,24,0.10); color: var(--yellow); border: 1px solid rgba(245,197,24,0.25); }
+  .badge-avoid { background: rgba(255,68,68,0.10); color: var(--red); border: 1px solid rgba(255,68,68,0.25); }
+  .badge-sell { background: rgba(255,68,68,0.18); color: #ff6666; border: 1px solid rgba(255,68,68,0.35); }
+  .badge-sell-scaled { background: rgba(255,68,68,0.25); color: #ff4444; border: 1px solid rgba(255,68,68,0.5); font-weight: 800; }
+  .badge-stable { background: rgba(0,194,255,0.08); color: var(--blue); border: 1px solid rgba(0,194,255,0.2); font-size: 9px; }
+  .badge-chaotic { background: rgba(255,68,68,0.08); color: #ff8888; border: 1px solid rgba(255,68,68,0.2); font-size: 9px; }
+  .badge-transition { background: rgba(245,197,24,0.08); color: #f5c518; border: 1px solid rgba(245,197,24,0.2); font-size: 9px; }
+  .badge-risk-low { background: rgba(20,241,149,0.08); color: #7be8b0; border: 1px solid rgba(20,241,149,0.2); font-size: 9px; }
+  .badge-risk-med { background: rgba(245,197,24,0.08); color: var(--yellow); border: 1px solid rgba(245,197,24,0.2); font-size: 9px; }
+  .badge-risk-high { background: rgba(255,68,68,0.10); color: var(--red); border: 1px solid rgba(255,68,68,0.25); font-size: 9px; }
+
+  /* Trade feed */
+  .trade-list { padding: 0; }
+  .trade-row {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .trade-row:last-child { border-bottom: none; }
+  .trade-row:hover { background: rgba(255,255,255,0.02); }
+  .trade-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .trade-token {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+  }
+  .trade-status-completed { color: var(--green); font-size: 11px; font-weight: 600; }
+  .trade-status-error { color: var(--red); font-size: 11px; font-weight: 600; }
+  .trade-status-pending { color: var(--yellow); font-size: 11px; font-weight: 600; }
+  .trade-status-rejected { color: var(--red); font-size: 11px; }
+  .trade-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .proof-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-top: 6px;
+  }
+  .proof-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .proof-link {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    text-decoration: none;
+    word-break: break-all;
+  }
+  .proof-link:hover { text-decoration: underline; }
+  .invisible-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    background: rgba(153,69,255,0.08);
+    border-radius: 3px;
+    padding: 2px 6px;
+    white-space: nowrap;
+  }
+  .trade-time { font-size: 10px; color: var(--muted); }
+
+  /* Deposit section */
+  .deposit-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    background: rgba(153,69,255,0.06);
+    border-bottom: 1px solid rgba(153,69,255,0.18);
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+  .deposit-label { color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; font-size: 10px; white-space: nowrap; }
+  .deposit-addr {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    word-break: break-all;
+    flex: 1;
+  }
+  .deposit-copy {
+    background: none;
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .deposit-copy:hover { background: rgba(153,69,255,0.12); }
+  .deposit-note { font-size: 10px; color: var(--muted); }
+
+  /* Empty state */
+  .empty {
+    padding: 40px 18px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .empty-sub { font-size: 11px; margin-top: 6px; }
+
+  /* Execute button */
+  .btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .btn:hover { background: var(--accent-dim); }
+  .btn:active { transform: translateY(1px); }
+
+  /* Add token form */
+  .add-form {
+    display: flex;
+    gap: 8px;
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+  }
+  .add-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    outline: none;
+  }
+  .add-input:focus { border-color: var(--accent); }
+  .add-input::placeholder { color: var(--muted); }
+
+  /* Refresh */
+  .refresh-ts { font-size: 10px; color: var(--muted); }
+  .spin {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Score color */
+  .score-high { color: var(--green); }
+  .score-mid { color: var(--yellow); }
+  .score-low { color: var(--red); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Chainlytics x Vanish
+  </div>
+  <div class="header-right">
+    <div class="status-pill">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">connecting...</span>
+    </div>
+    <div class="wallet-addr" id="wallet-addr"></div>
+    <div class="refresh-ts" id="refresh-ts"></div>
+  </div>
+</header>
+
+<div class="deposit-bar" id="deposit-bar" style="display:none">
+  <span class="deposit-label">Deposit address</span>
+  <span class="deposit-addr" id="deposit-addr">loading...</span>
+  <button class="deposit-copy" onclick="copyDeposit()">Copy</button>
+  <span class="deposit-note">Send SOL here to fund Vanish. Your wallet stays invisible.</span>
+</div>
+
+<div class="balance-bar" id="balance-bar">
+  <div class="balance-item">
+    <div class="balance-label">Vanish Balance</div>
+    <div class="balance-value" id="balance-sol">--</div>
+  </div>
+</div>
+
+<main>
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Live Token Intelligence</span>
+        <span class="card-count" id="scores-count">0 tokens</span>
+      </div>
+      <div class="token-list" id="scores-list">
+        <div class="empty">
+          Waiting for first score cycle...
+          <div class="empty-sub">Scores refresh every poll interval</div>
+        </div>
+      </div>
+      <div class="add-form">
+        <input class="add-input" id="add-input" placeholder="Token mint address..." />
+        <button class="btn" onclick="addToken()">Watch</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Private Trade Feed</span>
+        <span class="card-count" id="trades-count">0 trades</span>
+      </div>
+      <div class="trade-list" id="trades-list">
+        <div class="empty">
+          No trades executed yet.
+          <div class="empty-sub">Trades fire automatically when score crosses threshold</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const API = '';
+  let lastData = { scores: {}, trades: [], balances: [], status: {} };
+
+  function scoreColor(s) {
+    if (s >= 7) return 'score-high';
+    if (s >= 5) return 'score-mid';
+    return 'score-low';
+  }
+
+  function actionBadge(action) {
+    const map = {
+      BUY_SCALED: 'badge-buy-scaled',
+      BUY: 'badge-buy',
+      WAIT: 'badge-wait',
+      AVOID: 'badge-avoid',
+      SELL: 'badge-sell',
+      SELL_SCALED: 'badge-sell-scaled',
+    };
+    return `<span class="badge ${map[action] || 'badge-avoid'}">${action || 'UNKNOWN'}</span>`;
+  }
+
+  function regimeBadge(r) {
+    const map = { STABLE: 'badge-stable', CHAOTIC: 'badge-chaotic', TRANSITION: 'badge-transition' };
+    return `<span class="badge ${map[r] || 'badge-transition'}">${r || ''}</span>`;
+  }
+
+  function riskBadge(r) {
+    const map = { LOW: 'badge-risk-low', MEDIUM: 'badge-risk-med', MEDIUM: 'badge-risk-med', HIGH: 'badge-risk-high' };
+    return `<span class="badge ${map[r] || 'badge-risk-high'}">${r || ''}</span>`;
+  }
+
+  function confColor(c) {
+    if (c >= 0.8) return '#14f195';
+    if (c >= 0.6) return '#f5c518';
+    return '#ff4444';
+  }
+
+  function shortAddr(addr) {
+    if (!addr || addr.length < 12) return addr;
+    return addr.slice(0, 6) + '...' + addr.slice(-4);
+  }
+
+  function ts(epoch) {
+    if (!epoch) return '--';
+    const d = new Date(epoch * 1000);
+    return d.toLocaleTimeString();
+  }
+
+  function formatLamports(lamports) {
+    if (!lamports) return '0 SOL';
+    return (Number(lamports) / 1e9).toFixed(4) + ' SOL';
+  }
+
+  function renderScores(scores) {
+    const el = document.getElementById('scores-list');
+    const count = document.getElementById('scores-count');
+    const entries = Object.values(scores);
+    count.textContent = entries.length + ' token' + (entries.length !== 1 ? 's' : '');
+
+    if (!entries.length) {
+      el.innerHTML = '<div class="empty">Waiting for first score cycle...<div class="empty-sub">Add a token mint address below</div></div>';
+      return;
+    }
+
+    entries.sort((a, b) => b.decision_score - a.decision_score);
+
+    el.innerHTML = entries.map(s => {
+      const conf = (s.confidence * 100).toFixed(0);
+      const scoreClass = scoreColor(s.decision_score);
+      const err = s.error ? `<div style="color:#ff6666;font-size:10px;margin-top:4px">${s.error}</div>` : '';
+      return `
+        <div class="token-row">
+          <div>
+            <div class="token-addr">${shortAddr(s.token_address)}</div>
+            <div class="token-addr-full">${s.token_address}</div>
+            <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+              ${actionBadge(s.action)}
+              ${regimeBadge(s.regime)}
+              ${riskBadge(s.insider_risk)}
+            </div>
+            ${err}
+          </div>
+          <div class="score-block">
+            <div class="score-value ${scoreClass}">${s.decision_score.toFixed(1)}</div>
+            <div class="score-label">/ 10</div>
+          </div>
+          <div>
+            <div class="conf-bar-wrap">
+              <div class="conf-label">${conf}% conf</div>
+              <div class="conf-bar-bg">
+                <div class="conf-bar-fill" style="width:${conf}%;background:${confColor(s.confidence)}"></div>
+              </div>
+            </div>
+            <button class="btn" style="margin-top:8px;font-size:10px;"
+              onclick="manualExecute('${s.token_address}')">Execute</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderTrades(trades) {
+    const el = document.getElementById('trades-list');
+    const count = document.getElementById('trades-count');
+    count.textContent = trades.length + ' trade' + (trades.length !== 1 ? 's' : '');
+
+    if (!trades.length) {
+      el.innerHTML = '<div class="empty">No trades executed yet.<div class="empty-sub">Trades fire automatically when score crosses threshold</div></div>';
+      return;
+    }
+
+    el.innerHTML = trades.map(t => {
+      const statusClass = t.status === 'completed' ? 'trade-status-completed'
+        : t.status === 'error' ? 'trade-status-error'
+        : t.status === 'rejected' ? 'trade-status-rejected'
+        : 'trade-status-pending';
+
+      const duration = t.settled_at && t.started_at
+        ? ((t.settled_at - t.started_at) * 1000).toFixed(0) + 'ms'
+        : '--';
+
+      const proof = t.vanish_tx_id ? `
+        <div class="proof-block">
+          <span class="proof-label">On-chain tx</span>
+          <a class="proof-link" href="${t.solscan_url}" target="_blank">${t.vanish_tx_id.slice(0, 20)}...</a>
+          <span class="invisible-badge">WALLET INVISIBLE</span>
+        </div>` : '';
+
+      const oneTimeWallet = t.one_time_wallet ? `
+        <div style="margin-top:5px;font-size:10px;color:#6b6b8a">
+          Signer: <span style="font-family:monospace;color:#9945ff">${shortAddr(t.one_time_wallet)}</span>
+          (one-time, discarded)
+        </div>` : '';
+
+      const changes = t.balance_changes && t.balance_changes.length ? `
+        <div style="margin-top:5px;font-size:10px;color:#14f195">
+          ${t.balance_changes.map(c => `+${c.change} ${shortAddr(c.token_address)}`).join(' | ')}
+        </div>` : '';
+
+      const errMsg = t.error ? `<div style="font-size:10px;color:#ff6666;margin-top:4px">${t.error}</div>` : '';
+
+      return `
+        <div class="trade-row">
+          <div class="trade-top">
+            <div>
+              <div class="trade-token">${shortAddr(t.token_address)}</div>
+              <div class="trade-time">${ts(t.started_at)} &middot; settled in ${duration}</div>
+            </div>
+            <div>
+              <span class="${statusClass}">${t.status.toUpperCase()}</span>
+            </div>
+          </div>
+          <div class="trade-meta">
+            ${actionBadge(t.action)}
+            <span class="badge badge-wait" style="font-size:9px">score ${t.decision_score ? t.decision_score.toFixed(1) : '--'}</span>
+            <span class="badge badge-stable" style="font-size:9px">conf ${t.confidence ? (t.confidence * 100).toFixed(0) + '%' : '--'}</span>
+            ${t.vanish_fee ? `<span style="font-size:10px;color:#6b6b8a">fee: ${t.vanish_fee} lam</span>` : ''}
+          </div>
+          ${proof}
+          ${oneTimeWallet}
+          ${changes}
+          ${errMsg}
+        </div>`;
+    }).join('');
+  }
+
+  function renderBalance(balances) {
+    const bar = document.getElementById('balance-bar');
+    if (!balances || !balances.length) return;
+
+    const items = balances.map(b => {
+      const isSol = b.token_address === '11111111111111111111111111111111'
+        || b.token_address === 'So11111111111111111111111111111111111111112';
+      const label = isSol ? 'SOL (Vanish)' : shortAddr(b.token_address);
+      const val = isSol ? formatLamports(b.balance) : b.balance;
+      return `<div class="balance-item">
+        <div class="balance-label">${label}</div>
+        <div class="balance-value">${val}</div>
+      </div>`;
+    }).join('');
+    bar.innerHTML = items;
+  }
+
+  function updateStatus(status) {
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-text');
+    const wallet = document.getElementById('wallet-addr');
+    if (status.running) {
+      dot.style.background = '#14f195';
+      txt.textContent = `active | ${status.active_trades} trade(s) in flight`;
+    } else {
+      dot.style.background = '#ff4444';
+      txt.textContent = 'stopped';
+    }
+    if (status.user_address) {
+      wallet.textContent = shortAddr(status.user_address);
+    }
+  }
+
+  let _depositAddr = '';
+
+  async function loadDepositAddress() {
+    try {
+      const r = await fetch(API + '/api/deposit_address');
+      if (!r.ok) return;
+      const d = await r.json();
+      _depositAddr = d.deposit_address || '';
+      if (_depositAddr) {
+        document.getElementById('deposit-addr').textContent = _depositAddr;
+        document.getElementById('deposit-bar').style.display = 'flex';
+      }
+    } catch (e) {
+      // deposit address is a convenience; don't surface errors
+    }
+  }
+
+  function copyDeposit() {
+    if (!_depositAddr) return;
+    navigator.clipboard.writeText(_depositAddr).then(() => {
+      const btn = document.querySelector('.deposit-copy');
+      btn.textContent = 'Copied';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+    });
+  }
+
+  async function fetchAll() {
+    const ts_el = document.getElementById('refresh-ts');
+    ts_el.innerHTML = '<span class="spin">o</span>';
+    try {
+      const [scores, trades, balances, status] = await Promise.all([
+        fetch(API + '/api/scores').then(r => r.json()),
+        fetch(API + '/api/trades').then(r => r.json()),
+        fetch(API + '/api/balance').then(r => r.json()),
+        fetch(API + '/api/status').then(r => r.json()),
+      ]);
+      renderScores(scores || {});
+      renderTrades(trades || []);
+      renderBalance(balances || []);
+      updateStatus(status || {});
+      ts_el.textContent = 'updated ' + new Date().toLocaleTimeString();
+    } catch (e) {
+      ts_el.textContent = 'connection error';
+      document.getElementById('status-dot').style.background = '#ff4444';
+      document.getElementById('status-text').textContent = 'disconnected';
+    }
+  }
+
+  async function manualExecute(token) {
+    try {
+      const r = await fetch(API + '/api/execute/' + token, { method: 'POST' });
+      const d = await r.json();
+      if (!r.ok) { alert('Execute error: ' + (d.detail || d.error || r.status)); return; }
+      alert('Execution started: score=' + d.score + ' action=' + d.action);
+      setTimeout(fetchAll, 2000);
+    } catch (e) {
+      alert('Execute failed: ' + e.message);
+    }
+  }
+
+  async function addToken() {
+    const inp = document.getElementById('add-input');
+    const token = inp.value.trim();
+    if (!token) return;
+    try {
+      const r = await fetch(API + '/api/watchlist/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token_address: token }),
+      });
+      if (!r.ok) { alert('Failed to add token'); return; }
+      inp.value = '';
+      fetchAll();
+    } catch (e) {
+      alert('Error: ' + e.message);
+    }
+  }
+
+  document.getElementById('add-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addToken();
+  });
+
+  loadDepositAddress();
+  fetchAll();
+  setInterval(fetchAll, 8000);
+</script>
+</body>
+</html>

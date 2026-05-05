@@ -1,0 +1,68 @@
+# Chainlytics x Vanish -- Signal-to-Silent-Execution
+# Solana Frontier Hackathon 2026
+#
+# Copy this file to config.yaml and fill in real values.
+# config.yaml is gitignored. Never commit real credentials.
+
+vanish:
+  api_url: "https://core-api.vanish.trade"
+  api_key: "your_vanish_api_key_here"
+
+chainlytics:
+  # Chainlytics API endpoint. Sign up for a PRO key at https://chainlytics.dev
+  api_url: "https://api.chainlytics.dev"
+  api_key: "ce_pro_your_key_here"
+  chain: "sol"
+
+solana:
+  rpc_url: "https://api.mainnet-beta.solana.com"
+  # Your Solana keypair as a JSON array of 64 integers.
+  # Generate with: solana-keygen new --outfile keypair.json && cat keypair.json
+  # Keep this secret. Fund it with a small amount of SOL for demo trades.
+  keypair: []
+
+execution:
+  # Token mint addresses to watch (Solana mainnet mints)
+  watchlist:
+    - "8J69rPumH8mXwkuM28GdwdNBvYLT8HH2Pm2h7QiQ5rpump"
+
+  # Minimum Chainlytics decision_score to trigger execution
+  min_score: 7.0
+
+  # Minimum Chainlytics confidence to trigger execution
+  min_confidence: 0.70
+
+  # SOL to spend per trade (in lamports: 1 SOL = 1,000,000,000)
+  # 0.005 SOL = 5,000,000 lamports -- keep small for demo
+  trade_amount_lamports: 5000000
+
+  # SOL loaned by Vanish to cover ATA creation costs (refunded if unused)
+  loan_additional_sol: 12000000
+
+  # Jito tip amount in lamports (minimum recommended: 1,000,000 = 0.001 SOL)
+  jito_tip_amount: 1000000
+
+  # Number of Vanish Trading Accounts to split purchased tokens across (max 9)
+  # Use 1 for small trades (amount_out < 0.5% of total supply)
+  split_repay: 1
+
+  # How often to poll Chainlytics for score updates (seconds)
+  poll_interval_seconds: 30
+
+  # How often to poll Vanish /commit while waiting for settlement (seconds)
+  commit_poll_interval_seconds: 3
+
+  # Max /commit polls before giving up (40 * 3s = 120s max wait)
+  commit_max_polls: 40
+
+  # Max concurrent Vanish trades in flight
+  max_concurrent_trades: 2
+
+  # Output token for all trades (USDC by default; or a specific meme token mint)
+  # Leave empty to use Chainlytics watchlist token as target directly.
+  # If set, all buys convert source_token -> this output token.
+  output_token_address: ""
+
+server:
+  host: "0.0.0.0"
+  port: 3000
