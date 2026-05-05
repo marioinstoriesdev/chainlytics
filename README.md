@@ -1,6 +1,6 @@
 # Chainlytics x Vanish: Signal-to-Silent-Execution
 
-Solana Frontier Hackathon 2026 -- Vanish Track ($10K)
+Solana Frontier Hackathon 2026
 
 Chainlytics detects the buy signal. Vanish executes the trade. Your wallet never signed a thing.
 
