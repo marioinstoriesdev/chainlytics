@@ -366,4 +366,4 @@ All values are in config.yaml. Nothing is hardcoded in source files.
 
 ## Contact
 
-Mario Casanova | mariosamuelcasanova@gmail.com | chainlytics.dev
+Mario Casanova | chainlytics.dev
