@@ -76,9 +76,8 @@ becomes an expensive, fragile engineering problem.
 Building your own indexer takes 6-18 months of engineering, a team of 3-5 specialists,
 and $5,000-$50,000 per month in infrastructure. Only viable for well-funded teams.
 
-Traditional data APIs (The Graph, Helius, QuickNode) improve raw speed but still deliver
-200-400 raw fields per response. None were designed for AI agents that need decisions, not
-data dumps.
+Traditional data APIs improve raw speed but still deliver 200-400 raw fields per response.
+None were designed for AI agents that need decisions, not data dumps.
 
 None of these approaches solve the real 2026 pain: autonomous agents need instant
 decisions, not raw data.
@@ -192,7 +191,7 @@ from day one. Free tier available -- no credit card required.
 
 Algorithmic traders: use `decision_score`, `action`, and `insider_risk` for entry
 decisions, exit timing, or automated alerting on watchlists. PRO tier delivers the full
-intelligence signal at $99/mo -- below Birdeye's $250 Premium tier.
+intelligence signal at $99/mo.
 
 AI agents and LLM systems: TOON is purpose-built for machine consumption. Zero schema
 normalization. Zero NLP overhead on the `action` field. Compatible with any agent
@@ -255,16 +254,13 @@ building on the API directly can sign up at https://chainlytics.dev.
     cp config.example.yaml config.yaml
 
 Edit config.yaml and fill in:
-- vanish.api_key: operator credential, held server-side by the platform. End users
-  of the SaaS platform do not configure this field. This field is only relevant if
-  you are self-hosting the full platform stack yourself.
 - chainlytics.api_key: operator credential, held server-side by the platform. End
   users of the platform do not need a Chainlytics account. Access to the
   intelligence layer is included in the platform subscription. This field is only
   relevant if you are self-hosting the full platform stack yourself.
 - chainlytics.api_url: https://api.chainlytics.dev
 - solana.keypair: your Solana wallet keypair as a JSON array of 64 integers
-- solana.rpc_url: your Solana RPC endpoint (Triton One recommended)
+- solana.rpc_url: your Solana RPC endpoint
 - execution.watchlist: list of Solana token mint addresses to monitor
 - execution.trade_amount_lamports: SOL per trade in lamports (keep small for demo)
 
@@ -366,21 +362,20 @@ All values are in config.yaml. Nothing is hardcoded in source files.
 
 ---
 
-## Competitive Context
+## Ecosystem Fit
 
-| Feature                          | Birdeye      | Helius        | Chainlytics         |
-|----------------------------------|------------- |---------------|---------------------|
-| Market data and OHLCV            | $39-$699/mo  | Partial       | Yes (FREE)          |
-| Token security scan              | Partial      | No            | Yes (FREE)          |
-| Holder analysis                  | Partial      | No            | Yes (STARTER+)      |
-| Wallet intelligence and P&L      | Yes          | Partial       | Yes (STARTER+)      |
-| Smart money signals              | Partial      | No            | Yes (PRO)           |
-| Decision score 0-10              | No           | No            | Yes -- core product |
-| 5-gate safety pipeline           | No           | No            | Yes -- exclusive    |
-| AI-agent ready output (TOON)     | No           | No            | Yes -- exclusive    |
-| Trading simulation               | No           | No            | Yes (PRO+)          |
-| Multi-chain                      | Yes          | Solana only   | SOL + BSC (Base Q3) |
-| Intelligence tier price          | $250/mo      | N/A           | $99/mo (PRO)        |
+| Feature                          | Market data platforms | Chain indexers | Chainlytics         |
+|----------------------------------|-----------------------|----------------|---------------------|
+| Market data and OHLCV            | Yes                   | Partial        | Yes (FREE)          |
+| Token security scan              | Partial               | No             | Yes (FREE)          |
+| Holder analysis                  | Partial               | No             | Yes (STARTER+)      |
+| Wallet intelligence and P&L      | Yes                   | Partial        | Yes (STARTER+)      |
+| Smart money signals              | Partial               | No             | Yes (PRO)           |
+| Decision score 0-10              | No                    | No             | Yes -- core product |
+| 5-gate safety pipeline           | No                    | No             | Yes -- exclusive    |
+| AI-agent ready output (TOON)     | No                    | No             | Yes -- exclusive    |
+| Trading simulation               | No                    | No             | Yes (PRO+)          |
+| Multi-chain                      | Yes                   | Partial        | SOL + BSC (Base Q3) |
 
 ---
 
