@@ -6,19 +6,23 @@
 
 vanish:
   api_url: "https://core-api.vanish.trade"
+  # Operator credential. Server-side only. Never expose client-side. All platform
+  # users share this single key. Fee share is configured per this key during Vanish
+  # onboarding.
   api_key: "your_vanish_api_key_here"
 
 chainlytics:
-  # Chainlytics API endpoint. Sign up for a PRO key at https://chainlytics.dev
+  # Chainlytics API endpoint.
   api_url: "https://api.chainlytics.dev"
+  # Operator credential. Server-side only. Covers all platform users under the
+  # operator subscription. Users do not need their own Chainlytics account.
   api_key: "ce_pro_your_key_here"
   chain: "sol"
 
 solana:
   rpc_url: "https://api.mainnet-beta.solana.com"
-  # Your Solana keypair as a JSON array of 64 integers.
-  # Generate with: solana-keygen new --outfile keypair.json && cat keypair.json
-  # Keep this secret. Fund it with a small amount of SOL for demo trades.
+  # For local development and demo mode only. In production, wallet signing is
+  # performed client-side. Do not paste a production wallet keypair here.
   keypair: []
 
 execution:
