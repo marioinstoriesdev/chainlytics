@@ -203,6 +203,14 @@ cross-chain portfolio aggregation available. Contact for pricing.
 
 ---
 
+## Platform Access
+
+Users access Chainlytics intelligence and Vanish private execution through a single
+platform subscription. No separate API keys are required for either service. The
+platform operator manages all infrastructure credentials server-side.
+
+---
+
 ## API Tiers
 
     FREE        $0/mo     Token intelligence -- explore the platform
@@ -213,7 +221,9 @@ cross-chain portfolio aggregation available. Contact for pricing.
 PRO tier is required for /v1/score access and is the tier this hackathon integration
 uses. Rate limits: FREE 1K req/day, STARTER 50K/day, PRO 200K/day, ENTERPRISE unlimited.
 
-Sign up at https://chainlytics.dev.
+Platform subscribers access full PRO functionality included in their subscription.
+Tier selection is the operator's concern, not the end user's. Developers considering
+building on the API directly can sign up at https://chainlytics.dev.
 
 ---
 
@@ -245,8 +255,13 @@ Sign up at https://chainlytics.dev.
     cp config.example.yaml config.yaml
 
 Edit config.yaml and fill in:
-- vanish.api_key: your Vanish Core API key (request via discord.gg/vanishtrade)
-- chainlytics.api_key: your Chainlytics PRO key (get one at chainlytics.dev)
+- vanish.api_key: operator credential, held server-side by the platform. End users
+  of the SaaS platform do not configure this field. This field is only relevant if
+  you are self-hosting the full platform stack yourself.
+- chainlytics.api_key: operator credential, held server-side by the platform. End
+  users of the platform do not need a Chainlytics account. Access to the
+  intelligence layer is included in the platform subscription. This field is only
+  relevant if you are self-hosting the full platform stack yourself.
 - chainlytics.api_url: https://api.chainlytics.dev
 - solana.keypair: your Solana wallet keypair as a JSON array of 64 integers
 - solana.rpc_url: your Solana RPC endpoint (Triton One recommended)
@@ -255,13 +270,18 @@ Edit config.yaml and fill in:
 
 To generate a keypair: `solana-keygen new --outfile keypair.json && cat keypair.json`
 The output is the 64-integer array to paste under `solana.keypair`.
+Note: solana.keypair is for local development and demo mode only. In production
+deployment, wallet signing is handled client-side via browser wallet integration.
+Do not use a production wallet here.
 
-### 3. Get a Chainlytics API key
+### 3. Configure the Chainlytics API key
 
-Sign up at https://chainlytics.dev to get a PRO API key.
-PRO tier is required for /v1/score access.
-Set `chainlytics.api_url` to `https://api.chainlytics.dev` and paste your key under
-`chainlytics.api_key`. The key is passed via `X-API-Key` header on every request.
+The Chainlytics API key is a server-side operator credential. End users of the
+platform do not need a Chainlytics account. Access to the intelligence layer is
+included in the platform subscription. This field is only relevant if you are
+self-hosting the full platform stack yourself. Set `chainlytics.api_url` to
+`https://api.chainlytics.dev` and set `chainlytics.api_key` to the operator key.
+The key is passed via `X-API-Key` header on every request.
 
 ### 4. Fund your Vanish account
 
