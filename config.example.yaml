@@ -1,0 +1,78 @@
+# Chainlytics x Vanish -- Signal-to-Silent-Execution
+# https://github.com/marioinstoriesdev/chainlytics
+#
+# Copy this file to config.yaml and fill in your values.
+# config.yaml is gitignored. Never commit real credentials.
+#
+# What you need to run this:
+#   1. A Chainlytics API key -- buy a subscription at https://chainlytics.dev
+#      PRO or ENTERPRISE: Chainlytics Intelligence Score + private trading
+#      STARTER: private trading with raw data endpoints (assemble your own signal)
+#   2. Your own Solana wallet keypair (64-byte array) for trade signing.
+#      You do NOT need a Vanish API key -- Chainlytics handles that server-side.
+
+chainlytics:
+  # Chainlytics API endpoint.
+  api_url: "https://api.chainlytics.dev"
+
+  # Your Chainlytics subscriber key. Get one at https://chainlytics.dev
+  # PRO / ENTERPRISE keys also unlock /v1/vanish/* private trading endpoints.
+  # STARTER keys unlock trading endpoints without the Intelligence Score.
+  api_key: "ce_pro_your_key_here"
+
+  # Chain to trade on. Only "sol" is supported for private trading.
+  chain: "sol"
+
+solana:
+  # Public Solana RPC endpoint (used for broadcasting non-Jito transactions).
+  rpc_url: "https://api.mainnet-beta.solana.com"
+
+  # Your Solana wallet as a 64-integer JSON array [seed(32) + pubkey(32)].
+  # This wallet is your Vanish user address -- funds deposit here and withdraw here.
+  # Generate: solana-keygen new --outfile wallet.json && cat wallet.json
+  # Keep this file secret. Fund it with SOL before trading.
+  keypair: []
+
+execution:
+  # Solana token mint addresses to watch for buy/sell signals.
+  watchlist:
+    - "8J69rPumH8mXwkuM28GdwdNBvYLT8HH2Pm2h7QiQ5rpump"
+
+  # Minimum Chainlytics decision_score to trigger a trade (0-10).
+  # Scores >= 7.0 are BUY, >= 8.5 are BUY_SCALED. Requires PRO key.
+  # With STARTER key, set this to 0.0 and drive signals from your own logic.
+  min_score: 7.0
+
+  # Minimum TOON confidence to trigger a trade (0-1).
+  min_confidence: 0.70
+
+  # SOL to spend per trade in lamports (1 SOL = 1,000,000,000 lamports).
+  # 0.005 SOL = 5,000,000 -- keep small while testing.
+  trade_amount_lamports: 5000000
+
+  # SOL loaned by Vanish to cover ATA creation costs. Refunded if unused.
+  # Recommended: 0.012 SOL = 12,000,000 lamports.
+  loan_additional_sol: 12000000
+
+  # Jito bundle tip in lamports. Minimum recommended: 1,000,000 (0.001 SOL).
+  jito_tip_amount: 1000000
+
+  # Vanish Trading Accounts to distribute output tokens across (max 9).
+  # Use 1 for most trades. Only increase if amount_out > 0.5% of token supply.
+  split_repay: 1
+
+  # Seconds between Chainlytics score poll cycles.
+  poll_interval_seconds: 30
+
+  # Seconds between /commit polls while waiting for settlement.
+  commit_poll_interval_seconds: 3
+
+  # Max /commit polls before giving up (40 x 3s = 120s max wait).
+  commit_max_polls: 40
+
+  # Max trades in flight simultaneously.
+  max_concurrent_trades: 2
+
+server:
+  host: "0.0.0.0"
+  port: 3000
