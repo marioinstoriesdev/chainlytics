@@ -30,7 +30,7 @@ executes the trade through Vanish. Your wallet is invisible. The trade is privat
 
 | Plan | Price | What you get |
 |------|-------|-------------|
-| STARTER | $19/mo | Raw data endpoints + private trading via Vanish. Assemble your own signal from token security, holder stats, volume, social analysis, and wallet intelligence data. |
+| STARTER | $49/mo | Raw data endpoints + private trading via Vanish. Assemble your own signal from token security, holder stats, volume, social analysis, and wallet intelligence data. |
 | PRO | $99/mo | Everything in STARTER, plus the Chainlytics Intelligence Score — a single decision-grade TOON signal (BUY / BUY_SCALED / WAIT / SELL / AVOID) that pre-computes all factors for you. |
 | ENTERPRISE | Custom | Dedicated infrastructure, custom rate limits, SLA. |
 
